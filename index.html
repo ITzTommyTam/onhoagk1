@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ôn Tập Hóa Học 12 - Sakura Full Edition (Tráo Câu Hỏi)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --sakura-bg: #fff0f3;
+      --sakura-card: rgba(255, 255, 255, 0.94);
+      --sakura-border: #ffccd5;
+      --sakura-primary: #ff758f;
+      --sakura-dark: #c9184a;
+      --sakura-text: #4a1e28;
+      --correct: #2b9348;
+      --correct-bg: #e8f5e9;
+      --wrong: #d90429;
+      --wrong-bg: #ffebee;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 50%, #ffb3c1 100%);
+      color: var(--sakura-text);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    #sakura-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 25px 15px 80px;
+      position: relative;
+      z-index: 10;
+    }
+
+    header {
+      background: var(--sakura-card);
+      backdrop-filter: blur(12px);
+      padding: 22px;
+      border-radius: 20px;
+      text-align: center;
+      border: 2px solid var(--sakura-border);
+      box-shadow: 0 10px 25px rgba(255, 117, 143, 0.18);
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-family: 'Quicksand', sans-serif;
+      color: var(--sakura-dark);
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+    }
+
+    /* Score banner */
+    .scoreboard {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-top: 14px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+    .score-item {
+      background: #ffe5ec;
+      padding: 6px 16px;
+      border-radius: 30px;
+      color: var(--sakura-dark);
+      border: 1px solid var(--sakura-border);
+    }
+
+    /* Nút tráo câu hỏi nổi bật */
+    .btn-shuffle {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #ff4d6d, #c9184a);
+      color: white;
+      border: none;
+      padding: 9px 22px;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(201, 24, 74, 0.35);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-shuffle:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(201, 24, 74, 0.5);
+    }
+    .btn-shuffle:active {
+      transform: translateY(0);
+    }
+
+    /* Navigation tabs */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      font-family: 'Quicksand', sans-serif;
+      background: var(--sakura-card);
+      border: 2px solid var(--sakura-border);
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--sakura-text);
+      transition: all 0.25s;
+    }
+    .tab-btn.active {
+      background: var(--sakura-dark);
+      color: white;
+      border-color: var(--sakura-dark);
+      box-shadow: 0 4px 15px rgba(201, 24, 74, 0.35);
+    }
+
+    /* Question cards */
+    .q-card {
+      background: var(--sakura-card);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+      border: 1.5px solid var(--sakura-border);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+      transition: all 0.25s ease;
+    }
+    .q-card:hover {
+      box-shadow: 0 10px 25px rgba(255, 117, 143, 0.2);
+    }
+
+    .q-header {
+      font-weight: 700;
+      font-size: 1.08rem;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .q-num {
+      background: var(--sakura-dark);
+      color: white;
+      font-size: 0.85rem;
+      padding: 3px 10px;
+      border-radius: 8px;
+      margin-right: 8px;
+      display: inline-block;
+    }
+
+    /* Options */
+    .options-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+    }
+    @media(min-width: 600px) {
+      .options-list.two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    .opt-btn {
+      display: flex;
+      align-items: center;
+      padding: 11px 15px;
+      background: white;
+      border: 1.5px solid #ffe5ec;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.96rem;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .opt-btn:hover:not(.disabled) {
+      background: #fff0f3;
+      border-color: var(--sakura-primary);
+      transform: translateY(-1px);
+    }
+    .opt-btn.correct {
+      background: var(--correct-bg) !important;
+      border-color: var(--correct) !important;
+      color: var(--correct) !important;
+      font-weight: 700;
+    }
+    .opt-btn.wrong {
+      background: var(--wrong-bg) !important;
+      border-color: var(--wrong) !important;
+      color: var(--wrong) !important;
+      font-weight: 700;
+    }
+    .opt-btn.disabled {
+      cursor: default;
+    }
+
+    /* True/False Sub-questions */
+    .tf-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 8px;
+      border: 1px solid #ffd6de;
+    }
+    .tf-table th {
+      background: #ffe5ec;
+      padding: 9px 12px;
+      font-size: 0.9rem;
+      color: var(--sakura-dark);
+    }
+    .tf-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #ffe5ec;
+      font-size: 0.94rem;
+    }
+    .tf-btns {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .tf-choice {
+      padding: 5px 14px;
+      border: 1px solid #ffb3c1;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+    }
+    .tf-choice:hover:not(.disabled) {
+      background: var(--sakura-bg);
+    }
+    .tf-choice.correct {
+      background: var(--correct) !important;
+      color: white !important;
+      border-color: var(--correct) !important;
+    }
+    .tf-choice.wrong {
+      background: var(--wrong) !important;
+      color: white !important;
+      border-color: var(--wrong) !important;
+    }
+
+    /* Feedback Box */
+    .feedback-box {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 0.93rem;
+      line-height: 1.45;
+      animation: fadeIn 0.3s ease;
+    }
+    .feedback-box.show { display: block; }
+    .feedback-box.correct {
+      background: var(--correct-bg);
+      border-left: 4px solid var(--correct);
+      color: #1b4332;
+    }
+    .feedback-box.wrong {
+      background: var(--wrong-bg);
+      border-left: 4px solid var(--wrong);
+      color: #7209b7;
+    }
+
+    /* Thông báo Toast khi tráo câu */
+    .toast-msg {
+      position: fixed;
+      top: 25px;
+      right: 25px;
+      background: #c9184a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      font-weight: 700;
+      font-size: 0.95rem;
+      z-index: 999;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="sakura-canvas"></canvas>
+  <div class="toast-msg" id="toast">🌸 Đã tráo câu hỏi! Thứ tự số câu vẫn từ 1 đến hết.</div>
+
+  <div class="container">
+    <header>
+      <h1>🌸 ÔN TẬP HÓA HỌC 12 - GIỮA KÌ I 🌸</h1>
+      <p>Chọn phương án để <b>chấm điểm & hiển thị giải thích tức thì</b></p>
+      
+      <div class="scoreboard">
+        <div class="score-item">Đúng: <span id="correct-count">0</span></div>
+        <div class="score-item">Sai: <span id="wrong-count">0</span></div>
+        <div class="score-item">Đã làm: <span id="done-count">0</span></div>
+        <button class="btn-shuffle" onclick="shuffleAllQuestions()">
+          🔀 Tráo câu hỏi
+        </button>
+      </div>
+    </header>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="showSection('mcq')">Phần 1: Trắc Nghiệm (1 - 94 câu)</button>
+      <button class="tab-btn" onclick="showSection('tf')">Phần 2: Đúng / Sai (1 - 34 câu)</button>
+    </div>
+
+    <!-- Container cho phần Trắc nghiệm -->
+    <div id="mcq-container"></div>
+
+    <!-- Container cho phần Đúng / Sai -->
+    <div id="tf-container" style="display: none;"></div>
+  </div>
+
+  <script>
+    // TẬP DỮ LIỆU GỐC: TRẮC NGHIỆM
+    const originalMCQ = [
+      { id: 1, q: "Ethyl acetate có công thức là", a: ["C2H5COOCH3", "CH3COOC2H5", "CH3COOH", "CH3COOCH3"], c: 1, exp: "Gốc acetate là CH3COO-, ethyl là C2H5- => CH3COOC2H5." },
+      { id: 2, q: "Vinyl acetate có công thức là", a: ["CH3COOCH=CH2", "CH3COOCH(CH3)2", "CH2=CHCOOCH3", "HCOOCH2CH3"], c: 0, exp: "Gốc vinyl là -CH=CH2 => CH3COOCH=CH2." },
+      { id: 3, q: "Methyl benzoate có công thức là", a: ["CH3COOC6H5", "CH3COOCH2C6H5", "C6H5COOCH3", "C6H5COOCH=CH2"], c: 2, exp: "Acid benzoic là C6H5COOH, gốc methyl là -CH3 => C6H5COOCH3." },
+      { id: 4, q: "Sắp xếp theo chiều nhiệt độ sôi tăng dần của: (1) C3H7COOH; (2) CH3COOC2H5; (3) C3H7CH2OH.", a: ["(3), (2), (1)", "(1), (2), (3)", "(2), (3), (1)", "(1), (3), (2)"], c: 2, exp: "Ester (không có lk hydrogen) < Alcohol < Carboxylic acid (liên kết H bền nhất)." },
+      { id: 5, q: "Phenyl formate có công thức là", a: ["CH3COOCH2C6H5", "CH3COOC6H4CH3", "CH3COOC6H5", "HCOOC6H5"], c: 3, exp: "Formate là HCOO-, phenyl là -C6H5 => HCOOC6H5." },
+      { id: 6, q: "Số ester có CTPT C4H8O2 mà khi thủy phân thu được sản phẩm có khả năng tráng bạc là:", a: ["1", "2", "3", "4"], c: 1, exp: "Có dạng HCOOR: HCOOCH2CH2CH3 và HCOOCH(CH3)2 (2 đồng phân)." },
+      { id: 8, q: "Ester nào sau đây có mùi dứa chín?", a: ["Ethyl isovalerate", "Ethyl butyrate", "Benzyl acetate", "Isoamyl acetate"], c: 1, exp: "Ethyl butyrate và ethyl propionate có mùi dứa chín." },
+      { id: 9, q: "Trong số các ester sau, ester có mùi chuối chín là:", a: ["Methyl acetate", "Isoamyl acetate", "Ethyl formate", "Methyl propionate"], c: 1, exp: "Isoamyl acetate có mùi chuối chín đặc trưng." },
+      { id: 10, q: "Ester nào sau đây có mùi thơm của hoa nhài?", a: ["Isoamyl acetate", "Ethyl acetate", "Benzyl acetate", "Ethyl propionate"], c: 2, exp: "Benzyl acetate (CH3COOCH2C6H5) có mùi hoa nhài." },
+      { id: 11, q: "Phản ứng đặc trưng của ester là:", a: ["Phản ứng trùng hợp", "Phản ứng xà phòng hóa", "Phản ứng cộng", "Phản ứng ester hóa"], c: 1, exp: "Phản ứng đặc trưng của ester là phản ứng thủy phân trong kiềm (xà phòng hóa)." },
+      { id: 12, q: "Ở điều kiện thích hợp, 2 chất nào phản ứng tạo thành methyl acetate?", a: ["CH3COOH và CH3OH", "HCOOH và CH3OH", "CH3COOH và C2H5OH", "HCOOH và C2H5OH"], c: 0, exp: "CH3COOH + CH3OH <=> CH3COOCH3 + H2O." },
+      { id: 13, q: "Một phân tử triolein có bao nhiêu nguyên tử oxygen?", a: ["5", "4", "6", "3"], c: 2, exp: "Chất béo là triester 3 chức (-COO-)3 nên có 6 nguyên tử oxygen." },
+      { id: 14, q: "Chất béo là triester của acid béo với:", a: ["Ethylene glycol", "Glycerol", "Ethyl alcohol", "Methyl alcohol"], c: 1, exp: "Định nghĩa: Chất béo là triester của glycerol với các acid béo." },
+      { id: 15, q: "Công thức hóa học của chất béo triolein là:", a: ["(C15H31COO)3C3H5", "(C17H33COO)3C3H5", "(C17H31COO)3C3H5", "(C17H35COO)3C3H5"], c: 1, exp: "Acid oleic là C17H33COOH => Triolein là (C17H33COO)3C3H5." },
+      { id: 16, q: "Tên gọi của chất béo (CH3[CH2]16COO)3C3H5 là:", a: ["Trilinolein", "Tripalmitin", "Tristearin", "Triolein"], c: 2, exp: "CH3[CH2]16COO- chính là C17H35COO- (stearate) => Tristearin." },
+      { id: 17, q: "Acid béo no mạch hở chứa tổng cộng 16 carbon (carbonyl C + 15 carbon béo) là:", a: ["Palmitic acid", "Oleic acid", "Linoleic acid", "Stearic acid"], c: 0, exp: "C15H31COOH là Palmitic acid (16 carbon, no)." },
+      { id: 18, q: "Acid béo có 1 liên kết đôi cis ở vị trí C9-C10, mạch 18C là:", a: ["Palmitic acid", "Oleic acid", "Linoleic acid", "Stearic acid"], c: 1, exp: "Oleic acid: C17H33COOH có 1 liên kết C=C dạng cis." },
+      { id: 19, q: "Để chuyển hóa chất béo lỏng thành chất béo rắn (margarine), người ta dùng phản ứng:", a: ["H2, đun nóng, xúc tác Ni", "Khí oxygen", "Nước bromine", "Dung dịch NaOH đun nóng"], c: 0, exp: "Hydrogen hóa chất béo lỏng không no thành chất béo no rắn (xúc tác Ni, to)." },
+      { id: 20, q: "Chất béo nào sau đây ở trạng thái rắn ở điều kiện thường?", a: ["Tristearin", "Triolein", "Trilinolein", "Trilinolenin"], c: 0, exp: "Tristearin và Tripalmitin là chất béo no nên ở trạng thái rắn." },
+      { id: 21, q: "Triolein không tác dụng với chất nào sau đây?", a: ["Khí H2 (Ni, to)", "Kim loại Na", "Dung dịch KOH (to)", "Dung dịch Bromine"], c: 1, exp: "Chất béo không có nhóm -OH linh động nên không tác dụng với Na." },
+      { id: 22, q: "Một chất béo có CTPT C57H98O6 tạo bởi acid béo X và glycerol. Công thức của X là:", a: ["C15H31COOH", "C17H31COOH", "C17H33COOH", "C17H29COOH"], c: 1, exp: "(RCOO)3C3H5 = C57H98O6 => Gốc R là C17H31- (Linoleic acid)." },
+      { id: 23, q: "Cho glycerol phản ứng với hỗn hợp gồm C17H35COOH và C15H31COOH, số loại triester tối đa là:", a: ["6", "3", "5", "4"], c: 0, exp: "Số triester = n^2*(n+1)/2 = 2^2 * 3 / 2 = 6." },
+      { id: 24, q: "Chất nào sau đây là thành phần chủ yếu của xà phòng?", a: ["CH3COONa", "CH3(CH2)3COONa", "CH2=CHCOONa", "C17H35COONa"], c: 3, exp: "Xà phòng là muối sodium/potassium của acid béo (như C17H35COONa, C15H31COONa)." },
+      { id: 25, q: "Chất nào là thành phần chính của chất giặt rửa tổng hợp?", a: ["C15H31COONa", "(C17H35COO)2Ca", "CH3[CH2]11-C6H4-SO3Na", "C17H35COOK"], c: 2, exp: "Sodium alkylbenzenesulfonate là chất giặt rửa tổng hợp." },
+      { id: 26, q: "Trong thực tế, người ta dùng phản ứng nào sau đây để điều chế xà phòng?", a: ["Đun nóng acid béo với kiềm", "Đun nóng chất béo với dung dịch kiềm", "Đun nóng glycerol với acid béo", "Đun acid béo hoặc chất béo với kiềm"], c: 1, exp: "Phản ứng xà phòng hóa chất béo bằng dung dịch NaOH/KOH đun nóng." },
+      { id: 27, q: "Thủy phân chất béo X thu được hỗn hợp 3 acid: oleic, palmitic, stearic. Số CTCT của X là:", a: ["5", "2", "3", "4"], c: 2, exp: "Triester chứa 3 gốc acid khác nhau có 3! / 2 = 3 đồng phân cấu tạo." },
+      { id: 28, q: "Glucose quan trọng đối với cơ thể sống vì nó:", a: ["Cung cấp nước và CO2", "Cung cấp năng lượng cho quá trình sinh hóa", "Xúc tác sinh hóa", "Làm giảm oxi hóa tự do"], c: 1, exp: "Glucose là nguồn nhiên liệu cung cấp năng lượng chủ yếu cho tế bào sống." },
+      { id: 29, q: "Glucose và fructose thuộc loại carbohydrate nào sau đây?", a: ["Monosaccharide", "Disaccharide", "Polysaccharide", "Oligosaccharide"], c: 0, exp: "Glucose và Fructose là đường đơn (monosaccharide)." },
+      { id: 30, q: "Công thức phân tử chung của glucose và fructose là:", a: ["C6H10O5", "C6H12O6", "C5H10O5", "C12H22O11"], c: 1, exp: "Glucose và fructose là đồng phân cấu tạo của nhau, có CTPT là C6H12O6." },
+      { id: 31, q: "Nhóm chức nào sau đây không có trong cấu tạo mạch hở của glucose?", a: ["Aldehyde", "Hydroxy", "Ketone", "Hemiacetal"], c: 2, exp: "Mạch hở của glucose có 5 nhóm -OH và 1 nhóm -CHO, không có nhóm ketone (-CO-)." },
+      { id: 32, q: "Chất thuộc loại disaccharide là:", a: ["Saccharose", "Cellulose", "Fructose", "Glucose"], c: 0, exp: "Disaccharide gồm Saccharose và Maltose." },
+      { id: 33, q: "Chất thuộc loại polysaccharide là:", a: ["Cellulose", "Glucose", "Saccharose", "Fructose"], c: 0, exp: "Polysaccharide gồm Tinh bột và Cellulose." },
+      { id: 34, q: "Carbohydrate là hợp chất hữu cơ:", a: ["Chứa amino và carboxyl", "Chứa hydroxy và carboxyl", "Tạp chức, thường có CTTQ Cn(H2O)m", "Đa chức chứa nhiều nhóm -OH"], c: 2, exp: "Định nghĩa Carbohydrate: hợp chất hữu cơ tạp chức, CTTQ Cn(H2O)m." },
+      { id: 35, q: "Bệnh nhân cần tiếp đường (tiêm truyền tĩnh mạch) thường dùng dung dịch đường 5% nào?", a: ["Glucose", "Fructose", "Maltose", "Saccharose"], c: 0, exp: "Dung dịch glucose 5% được dùng làm dịch truyền trực tiếp vào tĩnh mạch." },
+      { id: 36, q: "Phản ứng chứng minh glucose có nhóm -CHO và nhiều nhóm -OH liền kề lần lượt là:", a: ["Tráng gương và lên men rượu", "Thuốc thử Tollens và Cu(OH)2 nhiệt độ phòng", "Tạo phức Cu(OH)2 và lên men", "Lên men và thủy phân"], c: 1, exp: "Tollens chứng minh -CHO; Cu(OH)2 ở t° phòng tạo dd xanh lam chứng minh nhiều -OH kề nhau." },
+      { id: 37, q: "Fructose không phản ứng được với chất nào sau đây?", a: ["Cu(OH)2 ở nhiệt độ thường", "H2 (xúc tác Ni, to)", "Nước Br2", "Dung dịch AgNO3/NH3, to"], c: 2, exp: "Fructose không có nhóm -CHO nên không làm mất màu nước bromine." },
+      { id: 38, q: "Chất X làm thuốc tăng lực, chất Y chuyển thành X trong môi trường base. Tên của X, Y lần lượt là:", a: ["Fructose và glucose", "Saccharose và glucose", "Glucose và fructose", "Glucose và saccharose"], c: 2, exp: "X là glucose (thuốc tăng lực), Y là fructose." },
+      { id: 39, q: "Carbohydrate nào sau đây là thành phần chính của mật ong (~40%)?", a: ["Glucose", "Fructose", "Maltose", "Saccharose"], c: 1, exp: "Mật ong chứa khoảng 40% fructose và 30% glucose." },
+      { id: 40, q: "Hormone nào sau đây làm giảm lượng glucose trong máu?", a: ["Adrenaline", "Thyroxine", "Insulin", "Oxytocin"], c: 2, exp: "Insulin (do tuyến tụy tiết ra) giúp hạ đường huyết." },
+      { id: 41, q: "Tuyến nội tiết nào sau đây giữ cho nồng độ glucose trong máu ổn định?", a: ["Tuyến yên", "Tuyến tụy", "Tuyến thượng thận", "Tuyến giáp"], c: 1, exp: "Tuyến tụy tiết insulin và glucagon để điều hòa đường huyết." },
+      { id: 42, q: "Nhóm chức nào sau đây không có trong cấu tạo của glucose?", a: ["Aldehyde", "Hydroxy", "Ketone", "Hemiacetal"], c: 2, exp: "Glucose không có nhóm chức ketone." },
+      { id: 43, q: "Saccharose có công thức phân tử là:", a: ["C12H22O11", "C6H12O6", "(C6H10O5)n", "CH3COOH"], c: 0, exp: "Saccharose và Maltose có CTPT là C12H22O11." },
+      { id: 44, q: "Phân tử saccharose được tạo bởi:", a: ["alpha-glucose và alpha-fructose", "beta-glucose và beta-fructose", "alpha-glucose và beta-fructose", "alpha-glucose và beta-glucose"], c: 2, exp: "Saccharose gồm 1 gốc alpha-glucose và 1 gốc beta-fructose qua liên kết alpha-1,2-glycoside." },
+      { id: 45, q: "Carbohydrate nào có nhiều trong cây mía và củ cải đường?", a: ["Glucose", "Tinh bột", "Fructose", "Saccharose"], c: 3, exp: "Saccharose còn gọi là đường mía, đường củ cải." },
+      { id: 46, q: "Saccharose không tham gia phản ứng nào sau đây?", a: ["Thủy phân bằng enzyme", "Thủy phân bằng acid", "Tạo dd xanh lam với Cu(OH)2", "Tráng bạc"], c: 3, exp: "Saccharose không có nhóm -OH hemiacetal/hemiketal tự do nên không tráng bạc." },
+      { id: 47, q: "Dung dịch glucose và saccharose đều có tính chất hóa học chung là:", a: ["Hòa tan Cu(OH)2 ở nhiệt độ thường", "Có vị ngọt, dễ tan trong nước", "Phản ứng với nước bromine", "Phản ứng tráng bạc"], c: 0, exp: "Cả hai đều có nhiều nhóm -OH kề nhau nên hòa tan Cu(OH)2 tạo dd màu xanh lam." },
+      { id: 48, q: "Mạch nha là tên gọi khác của carbohydrate nào sau đây?", a: ["Glucose", "Fructose", "Saccharose", "Maltose"], c: 3, exp: "Maltose có nhiều trong mầm lúa mạch, còn gọi là đường mạch nha." },
+      { id: 49, q: "Trong các chất: saccharose, maltose, glucose, fructose, chất không có tính khử là:", a: ["Saccharose", "Glucose", "Maltose", "Fructose"], c: 0, exp: "Saccharose là đường không có tính khử do cả 2 nhóm OH hemi/hemiketal đã tạo liên kết." },
+      { id: 50, q: "Carbohydrate nào sau đây có cấu trúc phân tử không đổi giữa thể rắn và dung dịch?", a: ["Glucose", "Fructose", "Maltose", "Saccharose"], c: 3, exp: "Saccharose chỉ tồn tại ở dạng mạch vòng, không mở vòng." },
+      { id: 51, q: "Cấu trúc phân tử carbohydrate nào không có nhóm -OH hemiacetal/hemiketal?", a: ["Glucose", "Fructose", "Maltose", "Saccharose"], c: 3, exp: "Saccharose không có -OH hemiacetal hoặc hemiketal." },
+      { id: 52, q: "Trong glucose, fructose, maltose, saccharose; số chất có khả năng mở vòng là:", a: ["1", "2", "3", "4"], c: 2, exp: "3 chất mở vòng được: Glucose, Fructose, Maltose." },
+      { id: 53, q: "Phản ứng đặc trưng của maltose là:", a: ["Phản ứng với dd NaOH", "Phản ứng màu với iodine", "Thủy phân tạo glucose", "Lên men trực tiếp tạo ethanol"], c: 2, exp: "Maltose thủy phân thu được 2 phân tử glucose." },
+      { id: 54, q: "Maltose được tạo ra từ quá trình nào sau đây?", a: ["Thủy phân saccharose", "Thủy phân tinh bột", "Kết hợp glucose và fructose", "Lên men ethanol"], c: 1, exp: "Thủy phân tinh bột nhờ men amylase tạo thành maltose." },
+      { id: 55, q: "Phân tử cellulose cấu tạo từ các đơn vị nào sau đây?", a: ["alpha-glucose", "beta-glucose", "Fructose", "Galactose"], c: 1, exp: "Cellulose cấu tạo từ nhiều mắt xích beta-glucose liên kết beta-1,4-glycoside." },
+      { id: 56, q: "Tinh bột chứa hỗn hợp chất nào sau đây?", a: ["Glucose và fructose", "Amylose và cellulose", "Amylose và amylopectin", "Glucose và galactose"], c: 2, exp: "Tinh bột gồm 2 thành phần là amylose (mạch thẳng) và amylopectin (phân nhánh)." },
+      { id: 57, q: "Amylopectin khác biệt cơ bản với amylose ở điểm nào sau đây?", a: ["Có cấu tạo mạch phân nhánh", "Chỉ chứa liên kết alpha-1,4-glycoside", "Không tan trong nước", "Tạo màu xanh tím với iodine"], c: 0, exp: "Amylopectin có mạch phân nhánh (nhờ thêm liên kết alpha-1,6-glycoside)." },
+      { id: 58, q: "Tinh bột và cellulose đều tham gia phản ứng nào sau đây?", a: ["Phản ứng thủy phân", "Màu với dung dịch iodine", "Thuốc thử Tollens", "Nước bromine"], c: 0, exp: "Cả hai đều là polysaccharide nên đều bị thủy phân trong môi trường acid." },
+      { id: 59, q: "Cellulose tan được trong dung dịch nào sau đây?", a: ["Dung dịch NaOH", "Dung dịch ethanol", "Nước Schweizer (Svayde)", "Nước bromine"], c: 2, exp: "Cellulose tan tốt trong nước Schweizer ([Cu(NH3)4](OH)2)." },
+      { id: 60, q: "Cellulose phản ứng với nitric acid đặc (xúc tác H2SO4 đặc) tạo thành:", a: ["Glucose", "Dextrin", "Maltose", "Cellulose trinitrate"], c: 3, exp: "[C6H7O2(OH)3]n + 3nHNO3 -> [C6H7O2(ONO2)3]n + 3nH2O." },
+      { id: 61, q: "Chất nào sau đây có thể thu được khi thủy phân không hoàn toàn tinh bột?", a: ["Cellulose", "Dextrin", "Fructose", "Saccharose"], c: 1, exp: "Tinh bột -> Dextrin -> Maltose -> Glucose." },
+      { id: 62, q: "Nguyên liệu nào sau đây không phải là nguồn cung cấp tinh bột?", a: ["Củ và quả", "Hạt ngũ cốc", "Sợi bông", "Gạo"], c: 2, exp: "Sợi bông chứa gần 98% là cellulose, không phải tinh bột." },
+      { id: 63, q: "Trong phân tử amylose, các mắt xích liên kết với nhau bằng liên kết:", a: ["alpha-1,4-glycoside", "alpha-1,6-glycoside", "beta-1,4-glycoside", "beta-1,6-glycoside"], c: 0, exp: "Amylose chỉ có liên kết alpha-1,4-glycoside." },
+      { id: 64, q: "Carbohydrate X là thành phần chính tạo nên màng tế bào thực vật, khung cây cối. X là:", a: ["Saccharose", "Cellulose", "Tinh bột", "Glucose"], c: 1, exp: "Cellulose là thành phần bộ khung nâng đỡ thực vật." },
+      { id: 65, q: "Chất rắn dạng sợi màu trắng, không tan trong nước, tạo màng tế bào thực vật là:", a: ["Amylopectin", "Fructose", "Cellulose", "Saccharose"], c: 2, exp: "Đó là Cellulose." },
+      { id: 66, q: "Carbohydrate nào sau đây được dùng để điều chế thuốc súng không khói?", a: ["Saccharose", "Cellulose", "Tinh bột", "Glucose"], c: 1, exp: "Cellulose trinitrate được dùng làm thuốc súng không khói." },
+      { id: 67, q: "Ở nhiệt độ thường, nhỏ dung dịch iodine vào hồ tinh bột thấy xuất hiện màu:", a: ["Hồng", "Xanh tím", "Nâu đỏ", "Vàng"], c: 1, exp: "Iodine lọt vào cấu trúc xoắn của tinh bột tạo hợp chất màu xanh tím." },
+      { id: 68, q: "Để phân biệt tinh bột và cellulose người ta dùng:", a: ["Dung dịch I2", "Cu(OH)2 nhiệt độ phòng", "Phản ứng tráng bạc", "Phản ứng thủy phân"], c: 0, exp: "Dùng dung dịch iodine (tinh bột hóa xanh tím, cellulose không đổi màu)." },
+      { id: 69, q: "Chất nào sau đây không có phản ứng thủy phân trong môi trường acid?", a: ["Cellulose", "Saccharose", "Tinh bột", "Glucose"], c: 3, exp: "Glucose là monosaccharide nên không bị thủy phân." },
+      { id: 70, q: "Tập hợp các chất đều bị thủy phân trong môi trường acid là:", a: ["Tinh bột, saccharose, fructose", "Tinh bột, cellulose, saccharose", "Tinh bột, cellulose, fructose", "Tinh bột, cellulose, glucose"], c: 1, exp: "Tinh bột, cellulose và saccharose đều là di/polysaccharide nên bị thủy phân." },
+      { id: 71, q: "Cellulose không có tính chất nào sau đây?", a: ["Tan trong nước Schweizer", "Tác dụng Cu(OH)2 tạo dd xanh lam", "Phản ứng HNO3 đặc", "Thủy phân tạo glucose"], c: 1, exp: "Cellulose không hòa tan Cu(OH)2 tạo dung dịch xanh lam." },
+      { id: 72, q: "Cellulose không được sử dụng trong ứng dụng nào sau đây?", a: ["Sản xuất các thiết bị điện", "Sản xuất ethanol, cellulose nitrate", "Sản xuất giấy, sợi nhân tạo", "Vật liệu xây dựng"], c: 0, exp: "Cellulose không dùng sản xuất thiết bị điện (chất dẫn/linh kiện bán dẫn)." },
+      { id: 73, q: "Tổng số đồng phân amine có CTPT C4H11N là:", a: ["5", "7", "6", "8"], c: 3, exp: "4 amine bậc I, 3 amine bậc II, 1 amine bậc III => Tổng 8 đồng phân." },
+      { id: 74, q: "Có bao nhiêu amine chứa vòng benzene có cùng CTPT C7H9N?", a: ["3", "5", "6", "7"], c: 1, exp: "Gồm: o-, m-, p-toluidine (3 bậc I), C6H5CH2NH2 (bậc I) và C6H5NHCH3 (bậc II) => 5 đồng phân." },
+      { id: 75, q: "Trong các chất sau, chất nào là amine bậc hai?", a: ["H2N-(CH2)6-NH2", "CH3-CH(CH3)-NH2", "CH3-NH-CH3", "C6H5NH2"], c: 2, exp: "CH3-NH-CH3 có nguyên tử N liên kết với 2 gốc hydrocarbon => Amine bậc II." },
+      { id: 76, q: "Amine có công thức CH3-NH-C2H5 có tên gốc - chức là:", a: ["Dimethylamine", "Methylethylamine", "Diethylamine", "Ethylmethylamine"], c: 3, exp: "Tên gốc chức theo bảng chữ cái: ethyl + methyl + amine => Ethylmethylamine." },
+      { id: 77, q: "Kết tủa trắng xuất hiện khi nhỏ nước bromine vào dung dịch nào sau đây?", a: ["Ethanol", "Benzene", "Aniline", "Acetic acid"], c: 2, exp: "Aniline tạo kết tủa trắng 2,4,6-tribromoaniline với nước bromine." },
+      { id: 78, q: "Aniline (C6H5NH2) phản ứng được với dung dịch nào sau đây?", a: ["NaOH", "HCl", "Na2CO3", "NaCl"], c: 1, exp: "Aniline có tính base yếu nên phản ứng với acid mạnh HCl tạo muối phenylammoni chloride." },
+      { id: 79, q: "Methylamine có thể tác dụng với tất cả các chất trong dãy nào sau đây?", a: ["HCl, NaOH, H2SO4", "HNO3, H3PO4, NaCl", "H2SO4, CuSO4, Na2CO3", "HCl, HNO2, CuSO4"], c: 3, exp: "Methylamine tác dụng với acid (HCl), axit nitrơ (HNO2) và tạo kết tủa/phức với CuSO4." },
+      { id: 80, q: "Amine là dẫn xuất của:", a: ["Methane", "Ammonia", "Ethanol", "Acetic acid"], c: 1, exp: "Amine hình thành khi thay thế H trong phân tử NH3 bằng gốc hydrocarbon." },
+      { id: 81, q: "Amine nào sau đây là chất lỏng ở nhiệt độ phòng?", a: ["Methylamine", "Ethylamine", "Dimethylamine", "Aniline"], c: 3, exp: "Aniline là chất lỏng không màu, ít tan trong nước; các amine nhỏ (C1-C2) là chất khí." },
+      { id: 82, q: "Công thức phân tử của dimethylamine là:", a: ["C2H8N2", "C2H7N", "C4H11N", "C2H6N2"], c: 1, exp: "(CH3)2NH có CTPT là C2H7N." },
+      { id: 83, q: "Benzylamine có công thức phân tử là:", a: ["C6H7N", "C7H9N", "C7H7N", "C7H8N"], c: 1, exp: "C6H5CH2NH2 có CTPT là C7H9N." },
+      { id: 84, q: "N-methylethanamine có công thức là:", a: ["C2H5NHCH3", "CH3NHCH3", "CH3NH2", "CH3NH2C2H5"], c: 0, exp: "N-methylethanamine là CH3-NH-C2H5." },
+      { id: 85, q: "Ứng với CTPT C3H9N sẽ có số đồng phân amine là:", a: ["5", "4", "2", "3"], c: 1, exp: "Gồm 2 bậc I, 1 bậc II, 1 bậc III => Tổng 4 đồng phân." },
+      { id: 86, q: "Có bao nhiêu amine bậc 2 có cùng CTPT C4H11N?", a: ["3", "8", "4", "1"], c: 0, exp: "Gồm: CH3-NH-CH2CH2CH3, CH3-NH-CH(CH3)2, C2H5-NH-C2H5 (3 đồng phân)." },
+      { id: 87, q: "Để khử mùi tanh của cá (do các amine gây ra), người ta có thể dùng:", a: ["Nước lọc", "Nước muối", "Cồn", "Giấm ăn"], c: 3, exp: "Giấm chứa acetic acid trung hòa các amine tạo muối không mùi tan trong nước." },
+      { id: 88, q: "Amine nào sau đây không làm đổi màu quỳ tím ẩm?", a: ["Aniline", "Ethylamine", "Methylamine", "Dimethylamine"], c: 0, exp: "Aniline có tính base rất yếu do ảnh hưởng của vòng benzene, không đổi màu quỳ tím." },
+      { id: 89, q: "Thêm ethylamine dư vào dung dịch CuSO4, hiện tượng quan sát được là:", a: ["Kết tủa màu xanh nhạt", "Dung dịch màu xanh lam đậm", "Kết tủa màu xanh đậm", "Dung dịch nhạt màu"], c: 1, exp: "Tạo kết tủa Cu(OH)2 sau đó kết tủa tan tạo phức chất [Cu(C2H5NH2)4]2+ màu xanh lam thẫm." },
+      { id: 90, q: "Thêm methylamine dư vào dung dịch FeCl3 thu được kết tủa màu:", a: ["Nâu đỏ", "Xanh lam", "Trắng xanh", "Đen"], c: 0, exp: "3CH3NH2 + FeCl3 + 3H2O -> Fe(OH)3 (kết tủa nâu đỏ) + 3CH3NH3Cl." },
+      { id: 91, q: "Chất tạo phức tan được với methylamine và ethylamine là:", a: ["Ca(OH)2", "Cu(OH)2", "Al(OH)3", "KOH"], c: 1, exp: "Cu(OH)2 tan trong dung dịch methylamine/ethylamine tạo phức xanh lam đậm." },
+      { id: 92, q: "Sản phẩm kết tủa trắng của phản ứng giữa aniline và nước bromine là:", a: ["Phenol", "2,4,6-tribromoaniline", "2,4-dibromoaniline", "Benzenamine"], c: 1, exp: "C6H5NH2 + 3Br2 -> 2,4,6-tribromoaniline (kết tủa trắng) + 3HBr." },
+      { id: 93, q: "Phản ứng nào sau đây có thể tạo ra methylamine?", a: ["CH3I + NH3", "CH4 + NH3", "CH3OH + HCl", "CH3Cl + H2O"], c: 0, exp: "Alkyl hóa ammonia bằng alkyl halide: CH3I + NH3 -> CH3NH2 + HI." },
+      { id: 94, q: "Phản ứng của aniline với nitrous acid ở nhiệt độ thấp (0 - 5 °C) tạo thành:", a: ["Benzene", "Phenol", "Phenyldiazonium chloride", "Phenylnitrosoamine"], c: 2, exp: "C6H5NH2 + HNO2 + HCl -> [C6H5N2]+Cl- (Phenyldiazonium chloride) + 2H2O." },
+      { id: 95, q: "Amine nào phản ứng với nitrous acid giải phóng khí nitrogen?", a: ["Methylamine", "Dimethylamine", "Aniline", "Trimethylamine"], c: 0, exp: "Amine no bậc 1 phản ứng giải phóng khí N2: CH3NH2 + HNO2 -> CH3OH + N2 + H2O." }
+    ];
+
+    // TẬP DỮ LIỆU GỐC: ĐÚNG / SAI
+    const originalTF = [
+      {
+        id: 1,
+        title: "Ethyl propionate có mùi dứa, được dùng làm chất tạo hương:",
+        items: [
+          { label: "a", text: "Ethyl propionate là chất lỏng ở điều kiện thường.", ans: "Đ", exp: "Ester này là chất lỏng, nhẹ hơn nước." },
+          { label: "b", text: "Công thức cấu tạo của ethyl propionate là CH3CH2CH2COOCH2CH3.", ans: "S", exp: "Ethyl propionate là C2H5COOC2H5 (CH3CH2COOCH2CH3), không phải butyrate." },
+          { label: "c", text: "Khi thủy phân trong môi trường acid thu được ethyl alcohol và propionic acid.", ans: "Đ", exp: "Thu được CH3CH2COOH và C2H5OH." },
+          { label: "d", text: "Ethyl propionate được điều chế từ propionic acid và ethyl alcohol.", ans: "Đ", exp: "Đúng theo phản ứng ester hóa." }
+        ]
+      },
+      {
+        id: 2,
+        title: "Cho các phát biểu về ester sau:",
+        items: [
+          { label: "a", text: "Poly(methyl methacrylate) được dùng làm thủy tinh hữu cơ plexiglas.", ans: "Đ", exp: "Được dùng làm kính máy bay, răng giả..." },
+          { label: "b", text: "Methyl formate có nhiệt độ sôi cao hơn acetic acid.", ans: "S", exp: "Acetic acid có liên kết hydrogen liên phân tử nên sôi cao hơn nhiều." },
+          { label: "c", text: "Các ester thường nhẹ hơn nước và ít tan trong nước.", ans: "Đ", exp: "Tính chất vật lý chung của ester." },
+          { label: "d", text: "Methyl acetate là đồng phân của acetic acid.", ans: "S", exp: "Methyl acetate C3H6O2 còn acetic acid C2H4O2." }
+        ]
+      },
+      {
+        id: 3,
+        title: "Phản ứng điều chế ethyl acetate từ acetic acid và ethyl alcohol xúc tác H2SO4 đặc:",
+        items: [
+          { label: "a", text: "H2SO4 đặc là chất xúc tác giúp phản ứng diễn ra thuận lợi hơn.", ans: "Đ", exp: "Vừa xúc tác vừa hút nước." },
+          { label: "b", text: "Phản ứng khi đun nóng ở nhiệt độ rất cao hiệu suất sẽ luôn tăng.", ans: "S", exp: "Nhiệt độ quá cao làm bay hơi chất phản ứng hoặc cháy." },
+          { label: "c", text: "H2SO4 đặc có vai trò hút nước làm cân bằng chuyển dịch theo chiều thuận.", ans: "Đ", exp: "Làm giảm nồng độ H2O kéo cân bằng sang phải." },
+          { label: "d", text: "Phản ứng điều chế ethyl acetate là phản ứng một chiều.", ans: "S", exp: "Là phản ứng thuận nghịch 2 chiều." }
+        ]
+      },
+      {
+        id: 4,
+        title: "Cho các phát biểu sau về ester:",
+        items: [
+          { label: "a", text: "Methyl methacrylate là ester no, mạch hở.", ans: "S", exp: "Không no, chứa 1 liên kết C=C ở gốc acid." },
+          { label: "b", text: "Ethyl acetate là ester no, đơn chức, mạch hở.", ans: "Đ", exp: "CH3COOC2H5 là ester no, đơn chức." },
+          { label: "c", text: "Vinyl acetate có công thức phân tử là C4H6O2.", ans: "Đ", exp: "CH3COOCH=CH2 có 4 C, 6 H, 2 O." },
+          { label: "d", text: "Ethyl formate có khả năng tác dụng với thuốc thử Tollens.", ans: "Đ", exp: "Chứa nhóm HCOO- có tính khử." }
+        ]
+      },
+      {
+        id: 5,
+        title: "Thí nghiệm điều chế isoamyl acetate (dầu chuối):",
+        items: [
+          { label: "a", text: "Sau bước 3, chất lỏng trong ống nghiệm trở thành đồng nhất.", ans: "S", exp: "Ester không tan nổi lên trên thành 2 lớp." },
+          { label: "b", text: "Mục đích chính của việc thêm dung dịch NaCl bão hòa là tránh phân hủy sản phẩm.", ans: "S", exp: "Mục đích là làm tăng khối lượng riêng pha nước để ester tách lớp dễ hơn." },
+          { label: "c", text: "H2SO4 đặc chỉ có vai trò làm chất xúc tác cho phản ứng.", ans: "S", exp: "Còn có vai trò hút nước để tăng hiệu suất." },
+          { label: "d", text: "Sau bước 2, trong ống nghiệm vẫn còn isoamyl alcohol và acetic acid.", ans: "Đ", exp: "Do phản ứng ester hóa là thuận nghịch." }
+        ]
+      },
+      {
+        id: 6,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Triolein có khả năng tham gia phản ứng với nước bromine.", ans: "Đ", exp: "Do chứa liên kết đôi C=C không no." },
+          { label: "b", text: "Phản ứng thủy phân ester trong môi trường acid thường là phản ứng thuận nghịch.", ans: "Đ", exp: "Thủy phân trong kiềm là một chiều, acid là thuận nghịch." },
+          { label: "c", text: "Ở điều kiện thường, tristearin là chất rắn.", ans: "Đ", exp: "Chất béo no ở thể rắn." },
+          { label: "d", text: "Vinyl acetate phản ứng với dung dịch NaOH sinh ra ethyl alcohol.", ans: "S", exp: "Sinh ra CH3COONa và acetaldehyde CH3CHO." }
+        ]
+      },
+      {
+        id: 7,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Ethyl acrylate có phản ứng với thuốc thử Tollens.", ans: "S", exp: "Gốc acrylate CH2=CH-COO- không tráng bạc." },
+          { label: "b", text: "Ở điều kiện thường, tristearin là chất rắn.", ans: "Đ", exp: "Tristearin là chất béo no thể rắn." },
+          { label: "c", text: "Thủy phân vinyl acetate thu được sản phẩm chứa acetic aldehyde.", ans: "Đ", exp: "Gốc vinyl bị biến thành aldehyde." },
+          { label: "d", text: "Tripalmitin phản ứng được với nước bromine.", ans: "S", exp: "Tripalmitin là chất béo no, không cộng Br2." }
+        ]
+      },
+      {
+        id: 8,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Chất béo là triester của ethylene glycol với các acid béo.", ans: "S", exp: "Phải là triester của glycerol." },
+          { label: "b", text: "Chất béo bị thủy phân khi đun nóng trong dung dịch kiềm.", ans: "Đ", exp: "Đó là phản ứng xà phòng hóa." },
+          { label: "c", text: "Các chất béo thường không tan trong nước và nhẹ hơn nước.", ans: "Đ", exp: "Tính chất vật lý đúng của lipid." },
+          { label: "d", text: "Trilinolein có khả năng tham gia phản ứng cộng hydrogen khi đun nóng có Ni.", ans: "Đ", exp: "Chất béo không no cộng H2 hóa lỏng thành rắn." }
+        ]
+      },
+      {
+        id: 9,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Chất béo là triester của glycerol với acid hữu cơ bất kỳ.", ans: "S", exp: "Phải là acid béo (mạch C dài không phân nhánh)." },
+          { label: "b", text: "Methyl acetate có phản ứng với thuốc thử Tollens.", ans: "S", exp: "Methyl acetate không có gốc formate HCOO-." },
+          { label: "c", text: "Trong phân tử vinyl acetate có hai liên kết pi.", ans: "Đ", exp: "1 liên kết pi trong nhóm C=O và 1 trong liên kết đôi C=C." },
+          { label: "d", text: "Tristearin có khả năng tác dụng với nước bromine.", ans: "S", exp: "Tristearin no nên không làm mất màu Br2." }
+        ]
+      },
+      {
+        id: 10,
+        title: "Cho các phát biểu sau về chất béo:",
+        items: [
+          { label: "a", text: "Thủy phân chất béo trong kiềm tạo ra acid béo và glycerol.", ans: "S", exp: "Tạo ra muối của acid béo (xà phòng) và glycerol." },
+          { label: "b", text: "Dầu mỡ để lâu ngày bị ôi thiu có mùi hôi, khét, đắng do gốc không no bị oxi hoá.", ans: "Đ", exp: "Tạo peroxide rồi phân hủy thành aldehyde có mùi khó chịu." },
+          { label: "c", text: "(CH3[CH2]15COO)3C3H5 có tên gọi là tristearin.", ans: "S", exp: "Mạch 17C là acid margaric, acid stearic là CH3[CH2]16COOH." },
+          { label: "d", text: "Thành phần chính của dầu lạc, dầu vừng, mỡ cá là chất béo không no dạng lỏng.", ans: "Đ", exp: "Dầu thực vật chứa nhiều acid béo không no." }
+        ]
+      },
+      {
+        id: 11,
+        title: "Thí nghiệm xà phòng hóa chất béo bằng dung dịch NaOH:",
+        items: [
+          { label: "a", text: "Sau bước 1 (mới cho chất béo và NaOH), thu được chất lỏng đồng nhất.", ans: "S", exp: "Chất béo không tan trong nước kiềm nên phân lớp." },
+          { label: "b", text: "Sau bước 3 (thêm NaCl bão hòa), thấy có lớp chất rắn màu trắng nổi lên.", ans: "Đ", exp: "Lớp xà phòng tách ra nổi lên." },
+          { label: "c", text: "Chất lỏng còn lại sau khi tách xà phòng hòa tan được Cu(OH)2 tạo dd màu xanh lam.", ans: "Đ", exp: "Vì dung dịch chứa glycerol là polyalcohol kề nhau." },
+          { label: "d", text: "Có thể thay thế mỡ động vật bằng dầu thực vật.", ans: "Đ", exp: "Đều là triglyceride." }
+        ]
+      },
+      {
+        id: 12,
+        title: "Cho các phát biểu về chất giặt rửa:",
+        items: [
+          { label: "a", text: "Các chất giặt rửa đều được sản xuất từ dầu mỡ động thực vật.", ans: "S", exp: "Chất giặt rửa tổng hợp được sản xuất từ dầu mỏ." },
+          { label: "b", text: "Xà phòng không nên dùng trong nước cứng vì tạo kết tủa muối stearate/palmitate của Ca/Mg.", ans: "Đ", exp: "Làm mất bọt và bám bẩn vải." },
+          { label: "c", text: "Đun nóng ester ba chức bất kỳ với dung dịch NaOH đều được xà phòng.", ans: "S", exp: "Phải là triester của acid béo." },
+          { label: "d", text: "Chất giặt rửa tổng hợp không bị kết tủa trong nước cứng.", ans: "Đ", exp: "Muối alkylsulfonate của Ca, Mg dễ tan trong nước." }
+        ]
+      },
+      {
+        id: 13,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Chất giặt rửa tổng hợp được dùng để giặt giũ, rửa bát, lau sàn...", ans: "Đ", exp: "Ứng dụng thực tế của chất giặt rửa." },
+          { label: "b", text: "Trong xà phòng C17H35COONa, phần ưa nước là gốc C17H35-.", ans: "S", exp: "Gốc hydrocarbon là đuôi kị nước, nhóm -COO-Na+ là đầu ưa nước." },
+          { label: "c", text: "Muối acid béo được ép khuôn, thêm chất thơm, chất diệt khuẩn tạo bánh xà phòng.", ans: "Đ", exp: "Quy trình sản xuất bánh xà phòng." },
+          { label: "d", text: "Quả bồ kết, quả bồ hòn chứa chất giặt rửa tự nhiên (saponin).", ans: "Đ", exp: "Có tác dụng tẩy rửa dịu nhẹ tự nhiên." }
+        ]
+      },
+      {
+        id: 14,
+        title: "Cho các phát biểu về phân loại carbohydrate:",
+        items: [
+          { label: "a", text: "Glucose và fructose không tham gia phản ứng thuỷ phân.", ans: "Đ", exp: "Đều là monosaccharide không bị thủy phân." },
+          { label: "b", text: "Fructose có cấu tạo hoá học hoàn toàn giống với glucose.", ans: "S", exp: "Glucose là aldohexose, fructose là ketohexose." },
+          { label: "c", text: "Saccharose và maltose là những disaccharide.", ans: "Đ", exp: "Thủy phân cho 2 đơn vị đường đơn." },
+          { label: "d", text: "Tinh bột và cellulose là những polysaccharide.", ans: "Đ", exp: "Gồm hàng nghìn gốc glucose liên kết." }
+        ]
+      },
+      {
+        id: 15,
+        title: "Cho các phát biểu về glucose và fructose:",
+        items: [
+          { label: "a", text: "Glucose và fructose đều có công thức phân tử là C6H12O6.", ans: "Đ", exp: "Là đồng phân của nhau." },
+          { label: "b", text: "Glucose và fructose đều tồn tại ở dạng mạch hở và mạch vòng.", ans: "Đ", exp: "Trong dung dịch luôn có sự chuyển hóa giữa vòng và hở." },
+          { label: "c", text: "Glucose và fructose đều là pentahydroxy aldehyde.", ans: "S", exp: "Fructose là pentahydroxy ketone." },
+          { label: "d", text: "Dạng vòng của glucose và fructose đều là vòng 6 cạnh.", ans: "S", exp: "Fructose chủ yếu dạng vòng 5 cạnh (furanose)." }
+        ]
+      },
+      {
+        id: 16,
+        title: "Tính chất hóa học của glucose và fructose:",
+        items: [
+          { label: "a", text: "Đều phản ứng được với thuốc thử Tollens.", ans: "Đ", exp: "Trong môi trường kiềm, fructose chuyển hóa thành glucose." },
+          { label: "b", text: "Đều làm mất màu nước bromine.", ans: "S", exp: "Chỉ có glucose làm mất màu nước bromine." },
+          { label: "c", text: "Dung dịch mỗi chất đều hoà tan được Cu(OH)2 ở nhiệt độ thường.", ans: "Đ", exp: "Đều có 5 nhóm -OH kề nhau." },
+          { label: "d", text: "Đều phản ứng với Cu(OH)2/NaOH đun nóng tạo kết tủa đỏ gạch Cu2O.", ans: "Đ", exp: "Fructose chuyển thành glucose trong môi trường kiềm nóng." }
+        ]
+      },
+      {
+        id: 17,
+        title: "Fructose có phản ứng tráng bạc chứng tỏ điều gì?",
+        items: [
+          { label: "a", text: "Fructose có nhóm chức -CHO trong phân tử mạch hở.", ans: "S", exp: "Tráng bạc được là do đồng hóa thành glucose trong môi trường base của dd Tollens." },
+          { label: "b", text: "Fructose có tính khử.", ans: "Đ", exp: "Khử được ion Ag+ thành Ag." },
+          { label: "c", text: "Fructose dễ tan trong nước.", ans: "Đ", exp: "Do có nhiều liên kết hydrogen với nước." },
+          { label: "d", text: "Fructose là monosaccharide.", ans: "Đ", exp: "Đường đơn." }
+        ]
+      },
+      {
+        id: 18,
+        title: "Cho các phát biểu sau về glucose và fructose:",
+        items: [
+          { label: "a", text: "Ở dạng cấu tạo mạch vòng, nhóm -OH hemiacetal tác dụng với methanol (HCl khan) tạo methyl glucoside.", ans: "Đ", exp: "Phản ứng tạo ether glycoside đặc trưng." },
+          { label: "b", text: "Dung dịch bromine oxi hóa glucose thành gluconic acid.", ans: "Đ", exp: "Oxi hóa nhóm aldehyde thành carboxyl." },
+          { label: "c", text: "Trong môi trường base, fructose và glucose có thể chuyển hóa qua lại lẫn nhau.", ans: "Đ", exp: "Qua trung gian enediol." },
+          { label: "d", text: "Trong dung dịch AgNO3/NH3, glucose oxi hóa AgNO3 thành Ag.", ans: "S", exp: "Glucose là chất khử, nó khử AgNO3 thành Ag." }
+        ]
+      },
+      {
+        id: 19,
+        title: "Cho các phát biểu về cấu tạo saccharose và maltose:",
+        items: [
+          { label: "a", text: "Maltose được tạo thành từ hai đơn vị fructose.", ans: "S", exp: "Tạo từ 2 đơn vị alpha-glucose." },
+          { label: "b", text: "Maltose có liên kết alpha-1,4-glycoside giữa 2 gốc glucose.", ans: "Đ", exp: "Cấu tạo chuẩn của maltose." },
+          { label: "c", text: "Phân tử saccharose chứa liên kết alpha-1,2-glycoside.", ans: "Đ", exp: "Nối alpha-C1 của glucose với beta-C2 của fructose." },
+          { label: "d", text: "Phân tử saccharose chỉ tồn tại ở dạng mạch vòng.", ans: "Đ", exp: "Không có khả năng mở vòng." }
+        ]
+      },
+      {
+        id: 20,
+        title: "Tính chất hóa học của saccharose và maltose:",
+        items: [
+          { label: "a", text: "Saccharose không thể tạo dung dịch màu xanh lam khi phản ứng với Cu(OH)2.", ans: "S", exp: "Vẫn tạo phức màu xanh lam ở nhiệt độ thường." },
+          { label: "b", text: "Saccharose không phản ứng với thuốc thử Tollens.", ans: "Đ", exp: "Không có nhóm -OH hemiacetal tự do." },
+          { label: "c", text: "Saccharose bị thuỷ phân trong môi trường acid cho cả glucose và fructose.", ans: "Đ", exp: "C12H22O11 + H2O -> C6H12O6 + C6H12O6." },
+          { label: "d", text: "Maltose có thể phản ứng với thuốc thử Tollens và làm mất màu nước bromine.", ans: "Đ", exp: "Do còn nhóm -OH hemiacetal tự do có thể mở vòng tạo -CHO." }
+        ]
+      },
+      {
+        id: 21,
+        title: "Trạng thái tự nhiên và ứng dụng saccharose:",
+        items: [
+          { label: "a", text: "Saccharose và maltose thường được sử dụng trong công nghiệp bánh kẹo.", ans: "Đ", exp: "Làm chất tạo ngọt." },
+          { label: "b", text: "Saccharose là chất rắn kết tinh màu trắng, vị ngọt, dễ tan trong nước.", ans: "Đ", exp: "Đường ăn thông dụng." },
+          { label: "c", text: "Dung dịch saccharose không hoà tan được Cu(OH)2.", ans: "S", exp: "Hòa tan tốt Cu(OH)2 ở nhiệt độ thường." },
+          { label: "d", text: "Dung dịch saccharose tham gia phản ứng tráng bạc.", ans: "S", exp: "Đường không khử, không tráng bạc." }
+        ]
+      },
+      {
+        id: 22,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Saccharose là nguồn cung cấp năng lượng quan trọng cho con người.", ans: "Đ", exp: "Cung cấp calo hàng ngày." },
+          { label: "b", text: "Dung dịch saccharose hoà tan Cu(OH)2 tạo dung dịch màu tím.", ans: "S", exp: "Tạo dung dịch màu xanh lam (màu tím là phản ứng biuret của peptide)." },
+          { label: "c", text: "Saccharose có nhiều trong mía, củ cải đường và hoa thốt nốt.", ans: "Đ", exp: "Nguồn nguyên liệu sản xuất đường ăn." },
+          { label: "d", text: "Maltose có trong một số hạt nảy mầm từ quá trình thuỷ phân tinh bột.", ans: "Đ", exp: "Đặc biệt là mầm lúa mạch." }
+        ]
+      },
+      {
+        id: 23,
+        title: "Cấu trúc tinh bột và cellulose:",
+        items: [
+          { label: "a", text: "Tinh bột và cellulose đều là polysaccharide.", ans: "Đ", exp: "Công thức chung (C6H10O5)n." },
+          { label: "b", text: "Phân tử amylose có cấu tạo không phân nhánh.", ans: "Đ", exp: "Amylose mạch không phân nhánh, cuộn xoắn." },
+          { label: "c", text: "Cellulose có cấu trúc phân nhánh nhiều.", ans: "S", exp: "Cellulose chỉ có cấu trúc mạch thẳng, không phân nhánh." },
+          { label: "d", text: "Cellulose được cấu tạo từ các đơn vị beta-glucose.", ans: "Đ", exp: "Liên kết beta-1,4-glycoside." }
+        ]
+      },
+      {
+        id: 24,
+        title: "Cho các phát biểu về tinh bột và cellulose:",
+        items: [
+          { label: "a", text: "Tinh bột và cellulose đều có công thức phân tử là (C6H10O5)n.", ans: "Đ", exp: "Khác nhau về hệ số polime hóa n." },
+          { label: "b", text: "Amylopectin chứa liên kết alpha-1,6-glycoside tại các điểm nhánh.", ans: "Đ", exp: "Tạo nên cấu trúc mạch phân nhánh." },
+          { label: "c", text: "Thủy phân hoàn toàn tinh bột thu được cả fructose và glucose.", ans: "S", exp: "Chỉ thu được duy nhất alpha-glucose." },
+          { label: "d", text: "Cellulose là thành phần chính của thành tế bào thực vật.", ans: "Đ", exp: "Bộ khung vững chắc của cây cối." }
+        ]
+      },
+      {
+        id: 25,
+        title: "Tính chất của tinh bột và cellulose:",
+        items: [
+          { label: "a", text: "Tinh bột tạo màu xanh tím khi phản ứng với dung dịch iodine.", ans: "Đ", exp: "Phản ứng nhận biết đặc trưng." },
+          { label: "b", text: "Cellulose tan tốt trong nước nóng.", ans: "S", exp: "Cellulose hoàn toàn không tan trong nước kể cả đun sôi." },
+          { label: "c", text: "Tinh bột không tan trong nước lạnh, trương lên trong nước nóng tạo hồ.", ans: "Đ", exp: "Tính chất tạo hồ tinh bột." },
+          { label: "d", text: "Cellulose không phản ứng màu với dung dịch iodine.", ans: "Đ", exp: "Cấu trúc mạch thẳng không giữ được I2." }
+        ]
+      },
+      {
+        id: 26,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Trong cây xanh, tinh bột được tổng hợp nhờ phản ứng quang hợp.", ans: "Đ", exp: "Từ CO2 và H2O nhờ diệp lục." },
+          { label: "b", text: "Thành phần chính của sợi bông tự nhiên là cellulose (đạt đến 98%).", ans: "Đ", exp: "Cellulose nguyên chất nhất." },
+          { label: "c", text: "Tinh bột là chất rắn màu xanh lam ở nhiệt độ thường.", ans: "S", exp: "Là chất bột vô định hình màu trắng." },
+          { label: "d", text: "Amylose và amylopectin đều có cấu trúc mạch phân nhánh.", ans: "S", exp: "Chỉ có amylopectin phân nhánh, amylose mạch thẳng." }
+        ]
+      },
+      {
+        id: 27,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Sản phẩm thuỷ phân cellulose (H+, to) có thể tham gia phản ứng tráng gương.", ans: "Đ", exp: "Thủy phân tạo glucose tráng gương được." },
+          { label: "b", text: "Saccharose tác dụng với Cu(OH)2 ở nhiệt độ thường tạo dung dịch màu xanh lam.", ans: "Đ", exp: "Tính chất của polyalcohol." },
+          { label: "c", text: "Glucose có tham gia phản ứng tráng gương tạo kết tủa màu vàng.", ans: "S", exp: "Tạo kết tủa màu trắng xám sáng bóng như gương của Ag." },
+          { label: "d", text: "Thuỷ phân hoàn toàn tinh bột và cellulose trong acid đều thu được glucose.", ans: "Đ", exp: "Đều có đơn vị mắt xích là glucose." }
+        ]
+      },
+      {
+        id: 28,
+        title: "Phản ứng của cellulose:",
+        items: [
+          { label: "a", text: "Cellulose có thể tạo thành cellulose nitrate khi phản ứng với HNO3 đặc.", ans: "Đ", exp: "Dùng làm thuốc súng không khói." },
+          { label: "b", text: "Phản ứng thuỷ phân của cellulose tạo ra fructose.", ans: "S", exp: "Chỉ tạo ra glucose." },
+          { label: "c", text: "Thuỷ phân hoàn toàn tinh bột và cellulose đều tạo thành glucose.", ans: "Đ", exp: "Cùng tạo glucose." },
+          { label: "d", text: "Cellulose tan trong nước Schweizer tạo dung dịch màu xanh lam.", ans: "Đ", exp: "Dùng sản xuất tơ visco/cupro." }
+        ]
+      },
+      {
+        id: 29,
+        title: "Danh pháp của amine CH3NHCH2CH3:",
+        items: [
+          { label: "a", text: "Tên gốc - chức của CH3NHCH2CH3 là methylethylamine.", ans: "S", exp: "Theo chữ cái: E đứng trước M => Ethylmethylamine." },
+          { label: "b", text: "Tên thay thế của CH3NHCH2CH3 là N-methylethanamine.", ans: "Đ", exp: "Mạch chính là ethanamine có nhóm thế methyl ở N." },
+          { label: "c", text: "Methylamine là amine bậc một.", ans: "Đ", exp: "CH3NH2 có 1 gốc liên kết với N." },
+          { label: "d", text: "Aniline là arylamine.", ans: "Đ", exp: "C6H5NH2 nhóm amine đính trực tiếp vào vòng thơm." }
+        ]
+      },
+      {
+        id: 30,
+        title: "Khái niệm và phân loại amine:",
+        items: [
+          { label: "a", text: "Amine là dẫn xuất khi thay thế nguyên tử H trong NH3 bằng gốc hydrocarbon.", ans: "Đ", exp: "Định nghĩa amine chính xác." },
+          { label: "b", text: "Aniline là amine bậc một.", ans: "Đ", exp: "Có nhóm -NH2." },
+          { label: "c", text: "Methylamine là amine bậc hai.", ans: "S", exp: "Methylamine CH3NH2 là bậc một." },
+          { label: "d", text: "Trimethylamine là amine bậc ba.", ans: "Đ", exp: "(CH3)3N có 3 gốc liên kết với N." }
+        ]
+      },
+      {
+        id: 31,
+        title: "Tính chất của aniline và alkylamine:",
+        items: [
+          { label: "a", text: "Ở điều kiện thường, aniline là chất lỏng ít tan trong nước, nặng hơn nước.", ans: "Đ", exp: "Lắng xuống đáy ống nghiệm." },
+          { label: "b", text: "Aniline tác dụng với nitrous acid ở nhiệt độ cao tạo muối diazonium.", ans: "S", exp: "Phải thực hiện ở nhiệt độ thấp (0 - 5 °C), nhiệt độ cao muối bị phân hủy thành phenol và N2." },
+          { label: "c", text: "Alkylamine bậc một tác dụng với nitrous acid giải phóng khí nitrogen.", ans: "Đ", exp: "R-NH2 + HNO2 -> R-OH + N2 + H2O." },
+          { label: "d", text: "Khi cho aniline vào nước bromine, xuất hiện kết tủa màu trắng.", ans: "Đ", exp: "Tạo 2,4,6-tribromoaniline." }
+        ]
+      },
+      {
+        id: 32,
+        title: "Tính chất của các amine:",
+        items: [
+          { label: "a", text: "Các amine nhỏ hòa tan Cu(OH)2 tạo dung dịch phức chất màu xanh lam thẫm.", ans: "Đ", exp: "Tạo phức amine tương tự NH3." },
+          { label: "b", text: "Methylamine là chất lỏng ở nhiệt độ thường.", ans: "S", exp: "Methylamine là chất khí có mùi khai độc." },
+          { label: "c", text: "Amine không thể phản ứng với nitrous acid.", ans: "S", exp: "Amine có phản ứng đặc trưng với HNO2 để nhận biết bậc." },
+          { label: "d", text: "Alkylamine làm quỳ tím hóa xanh, còn aniline không làm đổi màu quỳ tím.", ans: "Đ", exp: "Aniline có tính base quá yếu." }
+        ]
+      },
+      {
+        id: 33,
+        title: "Cho các phát biểu về liên kết và phản ứng của amine:",
+        items: [
+          { label: "a", text: "Methylamine không tạo được liên kết hydrogen với nước.", ans: "S", exp: "Có nhóm N-H và N có cặp e tự do tạo liên kết H rất tốt với nước nên tan vô hạn." },
+          { label: "b", text: "Amine không thể phản ứng với dung dịch CuCl2.", ans: "S", exp: "Tạo kết tủa Cu(OH)2 sau đó tan tạo phức." },
+          { label: "c", text: "Aniline dễ tham gia phản ứng thế trong vòng benzene hơn so với benzene.", ans: "Đ", exp: "Nhóm -NH2 đẩy electron kích hoạt vòng benzene." },
+          { label: "d", text: "Aniline không thể tham gia phản ứng thế với nước bromine.", ans: "S", exp: "Phản ứng thế 3 nguyên tử Br rất dễ dàng tạo kết tủa trắng." }
+        ]
+      },
+      {
+        id: 34,
+        title: "Cho các phát biểu sau:",
+        items: [
+          { label: "a", text: "Methylamine phản ứng với acid nitrous (HNO2) thu được khí nitrogen, nước và methanol.", ans: "Đ", exp: "CH3NH2 + HNO2 -> CH3OH + N2 + H2O." },
+          { label: "b", text: "Trimethylamine là chất lỏng ở nhiệt độ thường.", ans: "S", exp: "(CH3)3N là chất khí." },
+          { label: "c", text: "Aniline không phản ứng được với dung dịch acid HCl.", ans: "S", exp: "Aniline có tính base nên tác dụng tốt với acid mạnh HCl." },
+          { label: "d", text: "Các alkylamine có tính base yếu hơn hoặc tương tự ammonia.", ans: "S", exp: "Alkylamine có nhóm alkyl đẩy electron làm tính base mạnh hơn ammonia." }
+        ]
+      }
+    ];
+
+    // MẢNG HIỆN HÀNH DÙNG ĐỂ HIỂN THỊ
+    let currentMCQ = [...originalMCQ];
+    let currentTF = [...originalTF];
+
+    // THỐNG KÊ ĐIỂM
+    let stats = { correct: 0, wrong: 0, done: 0 };
+    function updateScoreUI() {
+      document.getElementById('correct-count').innerText = stats.correct;
+      document.getElementById('wrong-count').innerText = stats.wrong;
+      document.getElementById('done-count').innerText = stats.done;
+    }
+
+    // THUẬT TOÁN XÁO TRỘN FISHER-YATES (CHỈ TRÁO CÂU HỎI, SỐ CÂU GIỮ NGUYÊN)
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // HÀM BẤM NÚT "TRÁO CÂU HỎI"
+    function shuffleAllQuestions() {
+      currentMCQ = shuffleArray(originalMCQ);
+      currentTF = shuffleArray(originalTF);
+
+      // Reset điểm số
+      stats = { correct: 0, wrong: 0, done: 0 };
+      updateScoreUI();
+
+      // Render lại giao diện
+      renderMCQ();
+      renderTF();
+
+      // Hiển thị thông báo nhanh
+      const toast = document.getElementById('toast');
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2500);
+
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    // RENDER PHẦN 1: TRẮC NGHIỆM (Số thứ tự hiển thị luôn từ 1 -> N)
+    function renderMCQ() {
+      const container = document.getElementById('mcq-container');
+      container.innerHTML = currentMCQ.map((q, idx) => `
+        <div class="q-card" id="mcq-card-${idx}">
+          <div class="q-header">
+            <span class="q-num">Câu ${idx + 1}</span> ${q.q}
+          </div>
+          <div class="options-list ${q.a.every(opt => opt.length < 24) ? 'two-col' : ''}">
+            ${q.a.map((opt, oIdx) => `
+              <button class="opt-btn" onclick="checkMCQ(${idx}, ${oIdx})">
+                <b style="margin-right:8px">${['A','B','C','D'][oIdx]}.</b> ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div class="feedback-box" id="mcq-fb-${idx}"></div>
+        </div>
+      `).join('');
+    }
+
+    // CHẤM TỨC THÌ PHẦN 1
+    function checkMCQ(cardIdx, chosenIdx) {
+      const card = document.getElementById(`mcq-card-${cardIdx}`);
+      const btns = card.querySelectorAll('.opt-btn');
+      if (btns[0].classList.contains('disabled')) return; // Đã làm câu này
+
+      const item = currentMCQ[cardIdx];
+      const fbBox = document.getElementById(`mcq-fb-${cardIdx}`);
+      btns.forEach(b => b.classList.add('disabled'));
+
+      stats.done++;
+      if (chosenIdx === item.c) {
+        btns[chosenIdx].classList.add('correct');
+        fbBox.className = 'feedback-box show correct';
+        fbBox.innerHTML = `🌸 <b>Chính xác!</b><br>${item.exp}`;
+        stats.correct++;
+      } else {
+        btns[chosenIdx].classList.add('wrong');
+        btns[item.c].classList.add('correct');
+        fbBox.className = 'feedback-box show wrong';
+        fbBox.innerHTML = `❌ <b>Chưa đúng!</b> Đáp án đúng là <b>${['A','B','C','D'][item.c]}</b>.<br>${item.exp}`;
+        stats.wrong++;
+      }
+      updateScoreUI();
+    }
+
+    // RENDER PHẦN 2: ĐÚNG / SAI (Số thứ tự hiển thị luôn từ 1 -> N)
+    function renderTF() {
+      const container = document.getElementById('tf-container');
+      container.innerHTML = currentTF.map((q, idx) => `
+        <div class="q-card" id="tf-card-${idx}">
+          <div class="q-header">
+            <span class="q-num">Câu ${idx + 1}</span> ${q.title}
+          </div>
+          <table class="tf-table">
+            <thead>
+              <tr>
+                <th>Ý</th>
+                <th>Phát biểu</th>
+                <th style="width: 130px; text-align: center;">Chọn</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${q.items.map((sub, sIdx) => `
+                <tr id="tf-row-${idx}-${sIdx}">
+                  <td style="font-weight:700; color:var(--sakura-dark); text-align:center;">${sub.label})</td>
+                  <td>${sub.text}</td>
+                  <td>
+                    <div class="tf-btns">
+                      <button class="tf-choice" onclick="checkTF(${idx}, ${sIdx}, 'Đ')">Đúng</button>
+                      <button class="tf-choice" onclick="checkTF(${idx}, ${sIdx}, 'S')">Sai</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr id="tf-subfb-${idx}-${sIdx}" style="display:none;">
+                  <td colspan="3" style="padding: 6px 14px; background:#fff8f9; font-size:0.88rem; color:#800f2f;"></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `).join('');
+    }
+
+    // CHẤM TỨC THÌ PHẦN 2
+    function checkTF(cardIdx, subIdx, choice) {
+      const q = currentTF[cardIdx];
+      const sub = q.items[subIdx];
+      const row = document.getElementById(`tf-row-${cardIdx}-${subIdx}`);
+      const btns = row.querySelectorAll('.tf-choice');
+      if (btns[0].classList.contains('disabled')) return; // Đã làm ý này
+
+      btns.forEach(b => b.classList.add('disabled'));
+      const fbRow = document.getElementById(`tf-subfb-${cardIdx}-${subIdx}`);
+      const fbTd = fbRow.querySelector('td');
+
+      stats.done++;
+      if (choice === sub.ans) {
+        if (choice === 'Đ') btns[0].classList.add('correct');
+        else btns[1].classList.add('correct');
+        fbTd.innerHTML = `🌸 <b>Chính xác!</b> (${sub.ans === 'Đ' ? 'Đúng' : 'Sai'}): ${sub.exp}`;
+        stats.correct++;
+      } else {
+        if (choice === 'Đ') {
+          btns[0].classList.add('wrong');
+          btns[1].classList.add('correct');
+        } else {
+          btns[1].classList.add('wrong');
+          btns[0].classList.add('correct');
+        }
+        fbTd.innerHTML = `❌ <b>Sai!</b> Ý này là <b>${sub.ans === 'Đ' ? 'ĐÚNG' : 'SAI'}</b>: ${sub.exp}`;
+        stats.wrong++;
+      }
+      fbRow.style.display = 'table-row';
+      updateScoreUI();
+    }
+
+    // CHUYỂN TAB
+    function showSection(type) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      if (type === 'mcq') {
+        document.getElementById('mcq-container').style.display = 'block';
+        document.getElementById('tf-container').style.display = 'none';
+      } else {
+        document.getElementById('mcq-container').style.display = 'none';
+        document.getElementById('tf-container').style.display = 'block';
+      }
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    // HIỆU ỨNG CÁNH HOA ANH ĐÀO RƠI
+    const canvas = document.getElementById('sakura-canvas');
+    const ctx = canvas.getContext('2d');
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    });
+
+    const petals = Array.from({ length: 30 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * -h,
+      size: Math.random() * 8 + 10,
+      spX: Math.random() * 2 - 1,
+      spY: Math.random() * 1.5 + 1.2,
+      rot: Math.random() * 360,
+      rotSp: Math.random() * 2 - 1,
+      op: Math.random() * 0.4 + 0.6
+    }));
+
+    function drawPetals() {
+      ctx.clearRect(0, 0, w, h);
+      petals.forEach(p => {
+        p.x += p.spX + Math.sin(p.y * 0.01) * 0.6;
+        p.y += p.spY;
+        p.rot += p.rotSp;
+        if (p.y > h + 20) {
+          p.y = -20;
+          p.x = Math.random() * w;
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.globalAlpha = p.op;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-p.size / 2, -p.size / 2, -p.size, p.size / 3, 0, p.size);
+        ctx.bezierCurveTo(p.size, p.size / 3, p.size / 2, -p.size / 2, 0, 0);
+        ctx.fillStyle = '#ffccd5';
+        ctx.fill();
+        ctx.strokeStyle = '#ff758f';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+        ctx.restore();
+      });
+      requestAnimationFrame(drawPetals);
+    }
+
+    // KHỞI CHẠY LẦN ĐẦU
+    window.onload = () => {
+      renderMCQ();
+      renderTF();
+      drawPetals();
+    };
+  </script>
+</body>
+</html>
